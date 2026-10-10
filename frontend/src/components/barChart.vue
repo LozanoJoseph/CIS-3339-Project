@@ -4,61 +4,62 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue'
 import { Chart, registerables } from 'chart.js'
-import { Colors } from 'chart.js';
+import { Colors } from 'chart.js'
 
 Chart.register(...registerables)
-Chart.register(Colors);
+Chart.register(Colors)
 
-export default {
-  props: {
-    label: {
-      type: Array
-    },
-    chartData: {
-      type: Array
-    }
+const props = defineProps({
+  label: {
+    type: Array
   },
-  async mounted() {
-    await new Chart(this.$refs.attendanceChart, {
-      type: 'bar',
-      data: {
-        labels: this.label,
-        datasets: [
-          {
-            borderWidth: 1,
-            data: this.chartData
-          }
-        ]
-      },
-      options: {
-        scales: {
-          y: {
-            ticks: {
-              stepSize: 1
-            }
-          },
-          x: {
-            gridLines: {
-              display: false
-            }
-          }
-        },
-        plugins: {
-          legend: {
-            display: false
-          },
-          title: {
-            display: true,
-            text: 'Attendance Chart'
-          }
-        },
-        responsive: true,
-        maintainAspectRatio: true
-      }
-    })
+  chartData: {
+    type: Array
   }
-}
-</script>
+})
 
+const attendanceChart = ref(null)
+
+onMounted(() => {
+  new Chart(attendanceChart.value, {
+    type: 'bar',
+    data: {
+      labels: props.label,
+      datasets: [
+        {
+          borderWidth: 1,
+          data: props.chartData
+        }
+      ]
+    },
+    options: {
+      scales: {
+        y: {
+          ticks: {
+            stepSize: 1
+          }
+        },
+        x: {
+          gridLines: {
+            display: false
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        title: {
+          display: true,
+          text: 'Attendance Chart'
+        }
+      },
+      responsive: true,
+      maintainAspectRatio: true
+    }
+  })
+})
+</script>
