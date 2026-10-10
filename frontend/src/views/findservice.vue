@@ -69,7 +69,11 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-300">
-            <tr @click="$router.push({name: 'servicedetails', params: { id: service._id } })" 
+            <tr
+              @click="router.push({
+              name: 'servicedetails',
+              params: { id: service._id }
+              })"
             v-for="service in services" :key="service._id" class="cursor-pointer"
               :class="{ 'hoverRow': hoverId === service._id }" @mouseenter="hoverId = service._id"
               @mouseleave="hoverId = null">
@@ -83,79 +87,83 @@
   </main>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
 import { getServices, searchServices } from '../api/api'
 import { useToast } from 'vue-toastification'
 
-//Notifications
 const toast = useToast()
+const router = useRouter()
 
-export default {
-  data() {
-    return {
-      //variable to hold the services for the organization
-      services: null,
-      // Parameters for search to occur
-      searchBy: null,
-      name: null,
-      description: null,
-      // variable stores the ID of the row that the mouse is currently hovering over (to highlight the row red)
-      hoverId: null,
-    }
-  },
-  mounted() {
-    // when component is mounted, load the data
-    this.loadData();
-  },
-  methods: {
-    // method called when component is mounted
-    async loadData() {
-      // Resets all the variables
-      this.searchBy = ''
-      this.name = ''
-      this.description = ''
+const services = ref(null)
 
-      // get list of services
+const searchBy = ref('')
+const name = ref('')
+const description = ref('')
+
+const hoverId = ref(null)
+
+onMounted(() => {
+  loadData()
+})
+
+async function loadData() {
+  searchBy.value = ''
+  name.value = ''
+  description.value = ''
+
+  try {
+    const response = await getServices()
+
+    services.value = response
+
+  } catch (error) {
+    toast.error(error)
+  }
+}
+
+async function handleSubmitForm() {
+  if (searchBy.value === 'Service Name') {
+
+    if (name.value) {
       try {
-        const response = await getServices();
-        this.services = response;
+        const query = {
+          searchBy: 'name',
+          name: name.value
+        }
+
+        const response =
+          await searchServices(query)
+
+        services.value = response
+
       } catch (error) {
         toast.error(error)
       }
-    },
+    }
 
-    // method called when user searches for a service
-    async handleSubmitForm() {
-      // if user searches by service name
-      if (this.searchBy === 'Service Name') {
-        if (this.name) {
-          try {
-            const query = {
-              searchBy: 'name',
-              name: this.name
-            }
-            const response = await searchServices(query)
-            this.services = response;
-          } catch (error) {
-            toast.error(error)
-          }
+  } else if (
+    searchBy.value === 'Service Description'
+  ) {
+
+    if (description.value) {
+      try {
+        const query = {
+          searchBy: 'description',
+          description: description.value
         }
-        // if user searches by service description
-      } else if (this.searchBy === 'Service Description') {
-        if (this.description) {
-          try {
-            const query = {
-              searchBy: 'description',
-              description: this.description
-            }
-            const response = await searchServices(query)
-            this.services = response;
-          } catch (error) {
-            toast.error('Error searching services:', error)
-          }
-        }
+
+        const response =
+          await searchServices(query)
+
+        services.value = response
+
+      } catch (error) {
+        toast.error('Error searching services')
       }
-    },
-  },
+    }
+  }
 }
 </script>
