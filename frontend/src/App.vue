@@ -25,7 +25,7 @@
               </router-link>
             </li>
             <!--Logout link - Link only shows is user is logged in-->
-            <li v-if="user.isLoggedIn" @click.prevent="user.logout" style="cursor: pointer;">
+            <li v-if="user.isLoggedIn" style="cursor: pointer;">
               <span style="position:relative; top: 6px" class="material-icons">logout</span>
               Logout
             </li>
@@ -89,40 +89,32 @@
   </main>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue'
+
 import { useLoggedInUserStore } from './store/loggedInUser'
 import { getOrgName } from './api/api'
 import { useToast } from 'vue-toastification'
 
-//Notifications
 const toast = useToast()
 
-export default {
-  setup() {
-    const user = useLoggedInUserStore();
-    return { user };
-  },
-  data() {
-    return {
-      orgName: "Dataplatform",
-    };
-  },
-  async created() {
-    try {
-      this.orgName = await getOrgName();
-    } catch {
-      throw (error)
-    }
-  },
-  methods: {
-    logout() {
-      try {
-        this.$store.dispatch('clearSessionData');
-        this.$router.push('/')
-      } catch (error) {
-        toast.error('logout error', error)
-      }
-    },
+const user = useLoggedInUserStore()
+
+const orgName = ref('Dataplatform')
+
+onMounted(async () => {
+  try {
+    orgName.value = await getOrgName()
+  } catch (error) {
+    toast.error(error)
+  }
+})
+
+function logout() {
+  try {
+    user.logout()
+  } catch (error) {
+    toast.error('logout error')
   }
 }
 </script>
