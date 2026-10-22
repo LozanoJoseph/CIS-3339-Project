@@ -25,7 +25,7 @@
               </router-link>
             </li>
             <!--Logout link - Link only shows is user is logged in-->
-            <li v-if="user.isLoggedIn" style="cursor: pointer;">
+            <li v-if="user.isLoggedIn" @click="logout" style="cursor: pointer;">
               <span style="position:relative; top: 6px" class="material-icons">logout</span>
               Logout
             </li>
