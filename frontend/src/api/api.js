@@ -12,7 +12,7 @@ const apiClient = axios.create({
 
 // Login related API calls
 // If user logs in successfully, this login sets a header to "apiClient" called "Authorization" with the value of "Bearer <token>" This security token is used to validate API calls
-function setAuthHeader(token) {
+export function setAuthHeader(token) {
   apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 }
 
