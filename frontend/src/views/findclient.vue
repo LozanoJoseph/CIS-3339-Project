@@ -68,28 +68,11 @@
       </div>
       <!--Table showing list of Clients-->
       <div class="flex flex-col col-span-2">
-        <table class="min-w-full shadow-md rounded">
-          <thead class="bg-gray-50 text-xl">
-            <tr>
-              <th class="p-4 text-left">Name</th>
-              <th class="p-4 text-left">Phone number</th>
-              <th class="p-4 text-left">City</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-300">
-            <tr @click="router.push({ name: 'clientdetails', params: { id: client._id } })" v-for="client in clients"
-              :key="client._id" class="cursor-pointer" :class="{ 'hoverRow': hoverId === client._id }"
-              @mouseenter="hoverId = client._id" @mouseleave="hoverId = null">
-              <td class="p-2 text-left">
-                {{ client.firstName + ' ' + client.lastName }}
-              </td>
-              <td class="p-2 text-left">
-                {{ client.phoneNumber.primary }}
-              </td>
-              <td class="p-2 text-left">{{ client.address.city }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable
+          :columns="clientColumns"
+          :rows="clients || []"
+          @row-click="client => router.push({ name: 'clientdetails', params: { id: client._id } })"
+        />
       </div>
     </div>
   </main>
@@ -98,6 +81,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import DataTable from '../components/DataTable.vue'
 
 import { getClients, searchClients } from '../api/api'
 import { useToast } from 'vue-toastification'
@@ -107,12 +91,31 @@ const router = useRouter()
 
 const clients = ref(null)
 
+
+ 
+const clientColumns = [
+  {
+    label: 'Name',
+    key: 'name',
+    render: (client) => `${client.firstName} ${client.lastName}`
+  },
+  {
+    label: 'Phone number',
+    key: 'phoneNumber',
+    render: (client) => client.phoneNumber?.primary || ''
+  },
+  {
+    label: 'City',
+    key: 'city',
+    render: (client) => client.address?.city || ''
+  }
+]
+
 const searchBy = ref('')
 const firstName = ref('')
 const lastName = ref('')
 const phoneNumber = ref('')
 
-const hoverId = ref(null)
 
 onMounted(() => {
   loadData()

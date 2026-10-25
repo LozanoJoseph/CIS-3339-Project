@@ -59,29 +59,11 @@
         <h3 class="italic">Click table row to view event details</h3>
       </div>
       <div class="flex flex-col col-span-2">
-        <table class="min-w-full shadow-md rounded">
-          <thead class="bg-gray-50 text-xl">
-            <tr>
-              <th class="p-4 text-left">Event Name</th>
-              <th class="p-4 text-left">Event Date</th>
-              <th class="p-4 text-left">Event Address</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-300">
-            <tr
-             @click="router.push({
-              name: 'eventdetails',
-              params: { id: event._id }
-               })"
-              v-for="event in events" :key="event._id" class="cursor-pointer"
-              :class="{ 'hoverRow': hoverId === event._id }" @mouseenter="hoverId = event._id"
-              @mouseleave="hoverId = null">
-              <td class="p-2 text-left">{{ event.name }}</td>
-              <td class="p-2 text-left">{{ formatDate(event.date) }}</td>
-              <td class="p-2 text-left">{{ event.address.line1 }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable
+          :columns="eventColumns"
+          :rows="events || []"
+          @row-click="event => router.push({ name: 'eventdetails', params: { id: event._id } })"
+        />
       </div>
     </div>
   </main>
@@ -90,6 +72,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import DataTable from '../components/DataTable.vue'
 
 import { getEvents, searchEvents } from '../api/api'
 import { useToast } from 'vue-toastification'
@@ -99,11 +82,27 @@ const router = useRouter()
 
 const events = ref(null)
 
+const eventColumns = [
+  {
+    label: 'Event Name',
+    key: 'name'
+  },
+  {
+    label: 'Event Date',
+    key: 'date',
+    render: (event) => formatDate(event.date)
+  },
+  {
+    label: 'Event Address',
+    key: 'address',
+    render: (event) => event.address?.line1 || ''
+  }
+]
+
 const searchBy = ref(null)
 const name = ref(null)
 const eventDate = ref(null)
 
-const hoverId = ref(null)
 
 onMounted(() => {
   loadData()
