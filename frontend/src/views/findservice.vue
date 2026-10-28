@@ -61,27 +61,11 @@
         <h3 class="italic">Click table row to view service details</h3>
       </div>
       <div class="flex flex-col col-span-2">
-        <table class="min-w-full shadow-md rounded">
-          <thead class="bg-gray-50 text-xl">
-            <tr>
-              <th class="p-4 text-left" style="width: 25%;">Service Name</th>
-              <th class="p-4 text-left" style="width: 75%;">Service Description</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-300">
-            <tr
-              @click="router.push({
-              name: 'servicedetails',
-              params: { id: service._id }
-              })"
-            v-for="service in services" :key="service._id" class="cursor-pointer"
-              :class="{ 'hoverRow': hoverId === service._id }" @mouseenter="hoverId = service._id"
-              @mouseleave="hoverId = null">
-              <td class="p-4 text-left">{{ service.name }}</td>
-              <td class="p-4 text-left text-sm">{{ service.description }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable
+          :columns="serviceColumns"
+          :rows="services || []"
+          @row-click="service => router.push({ name: 'servicedetails', params: { id: service._id } })"
+        />
       </div>
     </div>
   </main>
@@ -90,6 +74,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import DataTable from '../components/DataTable.vue'
 
 import { getServices, searchServices } from '../api/api'
 import { useToast } from 'vue-toastification'
@@ -99,11 +84,21 @@ const router = useRouter()
 
 const services = ref(null)
 
+const serviceColumns = [
+  {
+    label: 'Service Name',
+    key: 'name'
+  },
+  {
+    label: 'Service Description',
+    key: 'description'
+  }
+]
+
 const searchBy = ref('')
 const name = ref('')
 const description = ref('')
 
-const hoverId = ref(null)
 
 onMounted(() => {
   loadData()
