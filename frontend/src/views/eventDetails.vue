@@ -150,7 +150,7 @@
         </div>
         <div class="flex justify-between mt-10 mr-20">
           <button type="reset" class="border border-red-700 bg-white text-red-700 rounded" @click="router.back()"
-            Go back
+            Go back>
           </button>
         </div>
       </div>
