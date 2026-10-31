@@ -1,0 +1,11 @@
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+# Vue Router uses HTML5 history mode. Unknown paths must fall back to index.html
+# so refreshing a nested route (for example /clientdetails/<id>) still loads the SPA.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

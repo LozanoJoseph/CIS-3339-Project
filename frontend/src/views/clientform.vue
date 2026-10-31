@@ -240,7 +240,7 @@ async function submitForm() {
 
     toast.success(response)
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 }
 </script>

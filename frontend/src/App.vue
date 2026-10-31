@@ -5,7 +5,7 @@
     <div id="_container" class="min-h-screen">
       <header class="w-full">
         <section class="text-center">
-          <img class="m-auto" src="@\assets\DanPersona.svg" />
+          <img class="m-auto" src="@/assets/DanPersona.svg" />
         </section>
         <!--Navigation bar-->
         <nav class="mt-10">
@@ -106,7 +106,7 @@ onMounted(async () => {
   try {
     orgName.value = await getOrgName()
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message || 'Unable to load organization information.')
   }
 })
 

@@ -76,7 +76,7 @@
           </div>
           <!--Go back button-->
           <div class="flex justify-between mt-20 mr-20">
-            <button type="reset" class="border border-red-700 bg-white text-red-700 rounded" @click="this.$router.back()">
+            <button type="reset" class="border border-red-700 bg-white text-red-700 rounded" @click="router.back()">
               Go back
             </button>
           </div>
@@ -101,7 +101,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-300">
-            <tr @click="$router.push({name: 'eventdetails', params: { id: event._id } })" 
+            <tr @click="router.push({name: 'eventdetails', params: { id: event._id } })" 
             v-for="event in events" :key="event._id" class="cursor-pointer"
               :class="{ 'hoverRow': hoverId === event._id }" @mouseenter="hoverId = event._id"
               @mouseleave="hoverId = null">
@@ -172,7 +172,7 @@ onMounted(async () => {
     events.value = eventsResponse
 
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 })
 
@@ -213,7 +213,7 @@ async function submitServiceUpdate() {
     router.push('/findservice')
 
   } catch (error) {
-    toast.error('error updating service')
+    toast.error(error.message)
       }
 }
 
@@ -235,7 +235,7 @@ async function submitDeleteService() {
     router.push('/findservice')
 
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 }
 </script>

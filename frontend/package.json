@@ -6,7 +6,8 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^6.0.10",
@@ -57,7 +58,7 @@
     "plugins": [
       "prettier"
     ]
-  }, 
+  },
   "browserslist": [
     "> 1%",
     "last 2 versions",

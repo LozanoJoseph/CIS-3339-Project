@@ -219,7 +219,7 @@ onMounted(async () => {
       )
 
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 })
 
@@ -239,7 +239,7 @@ async function handleSubmitForm() {
     toast.success(response)
 
   } catch (error) {
-    toast.error('error creating new event')
+    toast.error(error.message)
   }
 }
 </script>

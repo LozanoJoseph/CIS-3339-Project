@@ -171,8 +171,8 @@
         </div>
         <!--Go back button-->
         <div class="flex justify-between mt-10 mr-20">
-          <button type="reset" class="border border-red-700 bg-white text-red-700 rounded" @click="router.back()"
-            Go back>
+          <button type="reset" class="border border-red-700 bg-white text-red-700 rounded" @click="router.back()">
+            Go back
           </button>
         </div>
       </div>
@@ -196,7 +196,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-300">
-            <tr @click="$router.push({ name: 'eventdetails', params: { id: event._id } })" 
+            <tr @click="router.push({ name: 'eventdetails', params: { id: event._id } })" 
             v-for="event in clientEvents" :key="event._id" class="cursor-pointer" 
               :class="{ 'hoverRow': hoverId === event._id }" @mouseenter="hoverId = event._id" @mouseleave="hoverId = null">
               <td class="p-2 text-left">{{ event.name }}</td>
@@ -320,7 +320,7 @@ onMounted(async () => {
     eventsFiltered.value = nonClientEventsResponse
 
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 })
 
@@ -342,14 +342,14 @@ async function removeClientFromEvent(clientId, eventId) {
     const response = await deregisterAttendee(eventId, clientId)
     toast.success(response)
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 
   try {
     clientEvents.value = await getClientEvents(route.params.id)
     eventsFiltered.value = await getNonClientEvents(route.params.id)
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 }
 
@@ -380,15 +380,15 @@ async function addClientToEvent() {
 
           eventsSelected.value = []
         } catch (error) {
-          toast.error(error)
+          toast.error(error.message)
         }
       })
       .catch((error) => {
-        toast.error(error)
+        toast.error(error.message)
       })
 
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 }
 
@@ -410,7 +410,7 @@ async function submitUpdateClient() {
     toast.success(response)
 
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 }
 
@@ -424,7 +424,7 @@ async function submitDeleteClient() {
     router.push('/findclient')
 
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 }
 </script>

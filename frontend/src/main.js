@@ -1,33 +1,45 @@
-import { createApp, markRaw } from "vue";
-import router from "./router";
-import App from "./App.vue";
-import "./index.css";
-import Toast from "vue-toastification";
-// Import the CSS or use your own!
-import "vue-toastification/dist/index.css";
-//state management library
+import { createApp, markRaw } from 'vue'
+import router from './router'
+import App from './App.vue'
+import './index.css'
+import Toast from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
 import { createPinia } from 'pinia'
 import { useLoggedInUserStore } from './store/loggedInUser'
+import { setUnauthorizedHandler } from './api/api'
 
-const app = createApp(App);
+const app = createApp(App)
+const pinia = createPinia()
 
-//create a pinia root store
-const pinia = createPinia();
-//pinia should be able to use router - has to be setup as plugin
+// Make Vue Router available to Pinia actions.
 pinia.use(({ store }) => {
   store.$router = markRaw(router)
-});
+})
 
-//add pinia object to our instance
 app.use(pinia)
 
 const user = useLoggedInUserStore(pinia)
+
+// The Axios interceptor owns 401 handling. This callback lets it clear the
+// Pinia session and navigate without api.js importing the store/router directly.
+setUnauthorizedHandler(() => {
+  const redirect = router.currentRoute.value.fullPath
+  user.clearSession()
+
+  if (router.currentRoute.value.path !== '/login') {
+    router.push({
+      path: '/login',
+      query: redirect && redirect !== '/login' ? { redirect } : undefined
+    })
+  }
+})
+
 user.restoreSession()
 
-app.use(router);
+app.use(router)
 
 const options = {
   position: 'bottom-right'
-};
-app.use(Toast, options);
-app.mount("#app");
+}
+app.use(Toast, options)
+app.mount('#app')

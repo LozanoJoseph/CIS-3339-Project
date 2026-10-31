@@ -2,50 +2,67 @@
 <template>
   <main>
     <div>
-      <!--Header-->
       <h1 class="font-bold text-4xl text-red-700 tracking-widest text-center mt-10">
         Find Services
       </h1>
     </div>
+
     <div class="px-10 pt-20">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
         <h2 class="text-2xl font-bold">Search Service By</h2>
-        <!-- Displays Service Name and Description selection -->
         <div class="flex flex-col">
           <select
+            v-model="searchBy"
             class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            v-model="searchBy">
+          >
             <option value="Service Name">Service Name</option>
             <option value="Service Description">Service Description</option>
           </select>
         </div>
-        <!--Display service name search field-->
-        <div class="flex flex-col" v-if="searchBy === 'Service Name'">
+
+        <div v-if="searchBy === 'Service Name'" class="flex flex-col">
           <label class="block">
-            <input type="text"
+            <input
+              v-model="name"
+              type="text"
               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-              v-model="name" v-on:keyup.enter="handleSubmitForm" placeholder="Enter service name" />
+              placeholder="Enter service name"
+              @keyup.enter="handleSubmitForm"
+            />
           </label>
         </div>
-        <!--Display service description search field-->
-        <div class="flex flex-col" v-if="searchBy === 'Service Description'">
+
+        <div v-if="searchBy === 'Service Description'" class="flex flex-col">
           <label class="block">
-            <input type="text"
+            <input
+              v-model="description"
+              type="text"
               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-              v-model="description" v-on:keyup.enter="handleSubmitForm" placeholder="Enter service description" />
+              placeholder="Enter service description"
+              @keyup.enter="handleSubmitForm"
+            />
           </label>
         </div>
       </div>
+
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
         <div></div>
         <div></div>
         <div class="mt-5 grid-cols-2">
-          <!--Clear Search button-->
-          <button class="mr-10 border border-red-700 bg-white text-red-700 rounded" @click="loadData" type="submit">
+          <button
+            class="mr-10 border border-red-700 bg-white text-red-700 rounded"
+            type="button"
+            :disabled="loading"
+            @click="loadData"
+          >
             Clear Search
           </button>
-          <!--Search Service button-->
-          <button class="bg-red-700 text-white rounded" @click="handleSubmitForm" type="submit">
+          <button
+            class="bg-red-700 text-white rounded"
+            type="button"
+            :disabled="loading"
+            @click="handleSubmitForm"
+          >
             Search Service
           </button>
         </div>
@@ -53,17 +70,43 @@
     </div>
 
     <hr class="mt-10 mb-10" />
-    <!-- Display Found Data -->
+
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
-      <!--List of Services table-->
       <div class="ml-10">
         <h2 class="text-2xl font-bold">List of Services</h2>
         <h3 class="italic">Click table row to view service details</h3>
       </div>
+
       <div class="flex flex-col col-span-2">
+        <div
+          v-if="loading"
+          class="p-6 text-center font-semibold text-gray-600 bg-gray-50 rounded shadow"
+        >
+          Loading services...
+        </div>
+
+        <div
+          v-else-if="error"
+          class="p-6 text-center bg-red-50 border border-red-200 rounded shadow"
+        >
+          <p class="font-semibold text-red-800">{{ error }}</p>
+          <button
+            class="mt-4 px-4 py-2 bg-red-700 text-white rounded"
+            type="button"
+            @click="execute"
+          >
+            Retry
+          </button>
+        </div>
+
+        <div v-else-if="!services || services.length === 0" class="p-6 text-center text-gray-600">
+          No services found.
+        </div>
+
         <DataTable
+          v-else
           :columns="serviceColumns"
-          :rows="services || []"
+          :rows="services"
           @row-click="service => router.push({ name: 'servicedetails', params: { id: service._id } })"
         />
       </div>
@@ -75,14 +118,10 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import DataTable from '../components/DataTable.vue'
-
 import { getServices, searchServices } from '../api/api'
-import { useToast } from 'vue-toastification'
+import { useApi } from '../composables/useApi'
 
-const toast = useToast()
 const router = useRouter()
-
-const services = ref(null)
 
 const serviceColumns = [
   {
@@ -99,66 +138,40 @@ const searchBy = ref('')
 const name = ref('')
 const description = ref('')
 
+let currentRequest = () => getServices()
+const { data: services, loading, error, execute } = useApi(() => currentRequest())
 
-onMounted(() => {
-  loadData()
-})
+onMounted(loadData)
 
-async function loadData() {
+function resetSearch() {
   searchBy.value = ''
   name.value = ''
   description.value = ''
+}
 
-  try {
-    const response = await getServices()
-
-    services.value = response
-
-  } catch (error) {
-    toast.error(error)
-  }
+async function loadData() {
+  resetSearch()
+  currentRequest = () => getServices()
+  await execute()
 }
 
 async function handleSubmitForm() {
-  if (searchBy.value === 'Service Name') {
-
-    if (name.value) {
-      try {
-        const query = {
-          searchBy: 'name',
-          name: name.value
-        }
-
-        const response =
-          await searchServices(query)
-
-        services.value = response
-
-      } catch (error) {
-        toast.error(error)
-      }
+  if (searchBy.value === 'Service Name' && name.value) {
+    const query = {
+      searchBy: 'name',
+      name: name.value
     }
 
-  } else if (
-    searchBy.value === 'Service Description'
-  ) {
-
-    if (description.value) {
-      try {
-        const query = {
-          searchBy: 'description',
-          description: description.value
-        }
-
-        const response =
-          await searchServices(query)
-
-        services.value = response
-
-      } catch (error) {
-        toast.error('Error searching services')
-      }
+    currentRequest = () => searchServices(query)
+    await execute()
+  } else if (searchBy.value === 'Service Description' && description.value) {
+    const query = {
+      searchBy: 'description',
+      description: description.value
     }
+
+    currentRequest = () => searchServices(query)
+    await execute()
   }
 }
 </script>

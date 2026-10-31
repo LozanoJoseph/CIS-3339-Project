@@ -4,8 +4,8 @@ node_modules
 package-lock.json
 
 
-# local env files
-.env
+# course-project env files are intentionally committed per Project-README.md
+# Do not place personal/reused secrets in these files.
 .env.local
 .env.*.local
 

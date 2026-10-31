@@ -149,8 +149,8 @@
           <!--Go back button-->
         </div>
         <div class="flex justify-between mt-10 mr-20">
-          <button type="reset" class="border border-red-700 bg-white text-red-700 rounded" @click="router.back()"
-            Go back>
+          <button type="reset" class="border border-red-700 bg-white text-red-700 rounded" @click="router.back()">
+            Go back
           </button>
         </div>
       </div>
@@ -276,7 +276,7 @@ onMounted(async () => {
     services.value = servicesResponse
 
   } catch (error) {
-    toast.error('error loading data')
+    toast.error(error.message)
   }
 })
 
@@ -298,7 +298,7 @@ async function submitEventUpdate() {
     router.push('/findevents')
 
   } catch (error) {
-    toast.error('error updating event')
+    toast.error(error.message)
   }
 }
 
@@ -320,7 +320,7 @@ async function submitDeleteEvent() {
     router.push('/findevents')
 
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message)
   }
 }
 </script>
